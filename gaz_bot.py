@@ -178,7 +178,7 @@ async def handle_message(message: types.Message):
 # ========== 4. Запуск бота ==========
 async def main():
     # Здесь нужно вставить свой TOKEN от @BotFather
-    BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
+    BOT_TOKEN = "8646296414:AAE33HFnI5-H_RQk7lZttnssT0JSlljprRY"
     
     bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher()
