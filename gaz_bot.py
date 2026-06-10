@@ -177,8 +177,14 @@ async def handle_message(message: types.Message):
 
 # ========== 4. Запуск бота ==========
 async def main():
-    # Здесь нужно вставить свой TOKEN от @BotFather
-    BOT_TOKEN = "8646296414:AAE33HFnI5-H_RQk7lZttnssT0JSlljprRY"
+    """Основная функция запуска Telegram-бота"""
+    import os
+    BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
+    
+    if not BOT_TOKEN or BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
+        print("❌ Ошибка: TELEGRAM_TOKEN не найден в переменных окружения!")
+        print("Добавьте переменную TELEGRAM_TOKEN на Render.com")
+        return
     
     bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher()
@@ -187,22 +193,31 @@ async def main():
     dp.message.register(start_cmd, Command("start"))
     dp.message.register(handle_message)
     
-    print("🤖 Telegram-бот 'Газ за час' запущен и ожидает сообщений...")
+    print("🤖 Telegram-бот 'Газ за час' запущен и ожидает сообщений в Telegram...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     print("🤖 Запуск Telegram-бота 'Газ за час'...")
     
-    # ========== ТЕСТОВЫЙ РЕЖИМ (работает здесь, без Telegram) ==========
-    print("\n🔧 Запускаем тестовый режим...")
-    global products, warehouses
-    products = load_prices()
-    warehouses = load_warehouses()
+    # Проверка: запускаемся ли мы на Render или в тестовой среде
+    import os
+    token = os.getenv("TELEGRAM_TOKEN")
     
-    print("\n🧪 Давай протестируем бота! Напиши сообщение ниже (в следующем сообщении мне).")
-    print("Примеры запросов:")
-    print("- Пропан 21кг/50л")
-    print("- Кислород 40л")
-    print("- адреса складов")
-    print("- Аргон")
-    print("\n(Просто напиши мне в чат, и я обработаю через код бота)")
+    if token and token != "YOUR_BOT_TOKEN_HERE":
+        # Запуск на сервере (Render)
+        print("🌐 Запуск в режиме сервера (Render)")
+        asyncio.run(main())
+    else:
+        # Тестовый режим в нашей песочнице
+        print("\n🔧 Запускаем тестовый режим...")
+        global products, warehouses
+        products = load_prices()
+        warehouses = load_warehouses()
+        
+        print("\n🧪 Давай протестируем бота! Напиши сообщение ниже (в следующем сообщении мне).")
+        print("Примеры запросов:")
+        print("- Пропан 21кг/50л")
+        print("- Кислород 40л")
+        print("- адреса складов")
+        print("- Аргон")
+        print("\n(Просто напиши мне в чат, и я обработаю через код бота)")
