@@ -10,6 +10,7 @@ from aiogram.filters import Command
 from aiogram import F
 
 # ========== 1. Загрузка данных ==========
+
 def load_prices():
     """Загружает каталог товаров из prices.xml"""
     try:
@@ -43,7 +44,7 @@ def load_prices():
         
         print(f"✅ Успешно загружено {len(products)} товаров из prices.xml")
         return products
-        
+    
     except Exception as e:
         print(f"❌ Ошибка при чтении XML: {e}")
         return {}
@@ -70,17 +71,18 @@ def load_warehouses():
         return []
 
 # ========== 2. Основная логика бота ==========
+
 def find_product(query, products):
     """Ищет товар по запросу клиента (нечёткий поиск)"""
     if not query or not products:
         return None
-    
+        
     query_lower = query.lower().strip()
     
     # 1. Точное совпадение
     if query_lower in products:
         return products[query_lower]
-    
+        
     # 2. Поиск по частичному совпадению (лучшее совпадение)
     best_match = None
     best_score = 0
@@ -92,7 +94,7 @@ def find_product(query, products):
             if score > best_score:
                 best_score = score
                 best_match = info
-    
+                
     if best_match:
         print(f"✅ Найден товар: {best_match['name']}")
         return best_match
@@ -104,7 +106,7 @@ def get_nearest_warehouse(city="Москва", warehouses=None):
     """Ищет склад по городу"""
     if not warehouses:
         return "Нет данных о складах"
-    
+        
     city_lower = city.lower()
     for wh in warehouses:
         if (city_lower in wh['name'].lower() or 
@@ -115,7 +117,7 @@ def get_nearest_warehouse(city="Москва", warehouses=None):
                     f"🕒 {wh['work_time']}\n"
                     f"📞 {wh['phone1']}\n"
                     f"🔗 {wh['yandex_link']}")
-    
+                    
     # Если не нашли — возвращаем первый (Москва)
     if warehouses:
         wh = warehouses[0]
@@ -124,18 +126,21 @@ def get_nearest_warehouse(city="Москва", warehouses=None):
                 f"🕒 {wh['work_time']}\n"
                 f"📞 {wh['phone1']}\n"
                 f"🔗 {wh['yandex_link']}")
+    
     return "Склад не найден"
 
 # ========== Глобальные переменные для бота ==========
+
 products = None
 warehouses = None
 
 # ========== 3. Формирование ответа клиенту ==========
+
 def create_response(product_info, warehouse_info):
     """Создаёт красивый ответ для клиента"""
     if not product_info:
         return "К сожалению, не нашёл такой товар. Уточните, пожалуйста!"
-    
+        
     response = f"✅ {product_info['name']}\n"
     response += f"💰 Цена: {product_info['price']} руб.\n"
     response += f"🔗 Подробнее: {product_info['url']}\n\n"
@@ -143,6 +148,7 @@ def create_response(product_info, warehouse_info):
     return response
 
 # ========== Aiogram handlers ==========
+
 async def start_cmd(message: types.Message):
     await message.answer(
         "👋 Здравствуйте! Я бот-консультант компании «Газ за час».\n\n"
@@ -151,18 +157,19 @@ async def start_cmd(message: types.Message):
 
 async def handle_message(message: types.Message):
     global products, warehouses
+    
     if products is None:
         products = load_prices()
     if warehouses is None:
         warehouses = load_warehouses()
-    
+        
     text = message.text.strip()
     
     if "склад" in text.lower() or "адрес" in text.lower():
         wh_info = get_nearest_warehouse("Москва", warehouses)
         await message.answer(f"📍 Ближайший склад:\n{wh_info}")
         return
-    
+        
     # Поиск товара
     product = find_product(text, products)
     if product:
@@ -176,6 +183,7 @@ async def handle_message(message: types.Message):
         )
 
 # ========== 4. Запуск бота ==========
+
 async def main():
     """Основная функция запуска Telegram-бота"""
     import os
@@ -185,7 +193,7 @@ async def main():
         print("❌ Ошибка: TELEGRAM_TOKEN не найден в переменных окружения!")
         print("Добавьте переменную TELEGRAM_TOKEN на Render.com")
         return
-    
+        
     bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher()
     
@@ -210,7 +218,7 @@ if __name__ == "__main__":
     else:
         # Тестовый режим в нашей песочнице
         print("\n🔧 Запускаем тестовый режим...")
-        global products, warehouses
+        # УДАЛЕНО: global products, warehouses (они уже глобальные)
         products = load_prices()
         warehouses = load_warehouses()
         
